@@ -20,7 +20,7 @@ import org.joda.time.DateTime;
 public class MainActivity extends AppCompatActivity {
 
     public static int SETTINGS_RESULT = 1;
-    public static int HISTORY_RESULT = 1;
+    public static int HISTORY_RESULT = 2;
     private HistoryItem item;
 
     private enum Mode {Length, Volume};
