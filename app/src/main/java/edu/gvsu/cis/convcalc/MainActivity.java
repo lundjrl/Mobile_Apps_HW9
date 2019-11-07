@@ -13,11 +13,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import edu.gvsu.cis.convcalc.UnitsConverter.LengthUnits;
 import edu.gvsu.cis.convcalc.UnitsConverter.VolumeUnits;
+import edu.gvsu.cis.convcalc.dummy.HistoryContent;
+import edu.gvsu.cis.convcalc.dummy.HistoryContent.HistoryItem;
+import org.joda.time.DateTime;
 
 public class MainActivity extends AppCompatActivity {
 
     public static int SETTINGS_RESULT = 1;
     public static int HISTORY_RESULT = 1;
+    private HistoryItem item;
 
     private enum Mode {Length, Volume};
 
@@ -125,6 +129,11 @@ public class MainActivity extends AppCompatActivity {
                     Double dVal = Double.parseDouble(val);
                     Double cVal = UnitsConverter.convert(dVal, fUnits, tUnits);
                     dest.setText(Double.toString(cVal));
+
+                    // remember the calculation.
+                    item = new HistoryContent.HistoryItem(dVal, cVal, mode.toString(),
+                        toUnits.getText().toString(), fromUnits.getText().toString(), DateTime.now());
+                    HistoryContent.addItem(item);
                     break;
                 case Volume:
                     VolumeUnits vtUnits, vfUnits;
@@ -138,6 +147,11 @@ public class MainActivity extends AppCompatActivity {
                     Double vdVal = Double.parseDouble(val);
                     Double vcVal = UnitsConverter.convert(vdVal, vfUnits, vtUnits);
                     dest.setText(Double.toString(vcVal));
+
+                    // remember the calculation.
+                    item = new HistoryContent.HistoryItem(vdVal, vcVal, mode.toString(),
+                        toUnits.getText().toString(), fromUnits.getText().toString(), DateTime.now());
+                    HistoryContent.addItem(item);
                     break;
             }
         }
@@ -182,10 +196,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == SETTINGS_RESULT) {
             this.fromUnits.setText(data.getStringExtra("fromUnits"));
             this.toUnits.setText(data.getStringExtra("toUnits"));
+        }else if (resultCode == HISTORY_RESULT) {
+            String[] vals = data.getStringArrayExtra("item");
+            this.fromField.setText(vals[0]);
+            this.toField.setText(vals[1]);
+            this.mode = Mode.valueOf(vals[2]);
+            this.fromUnits.setText(vals[3]);
+            this.toUnits.setText(vals[4]);
+            this.title.setText(mode.toString() + " Converter");
         }
+
     }
 
 }

@@ -3,6 +3,7 @@ package edu.gvsu.cis.convcalc;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +60,9 @@ public class HistoryFragment extends Fragment {
     if (view instanceof RecyclerView) {
       Context context = view.getContext();
       RecyclerView recyclerView = (RecyclerView) view;
+      DividerItemDecoration did = new DividerItemDecoration(recyclerView.getContext(),
+          DividerItemDecoration.VERTICAL);
+      recyclerView.addItemDecoration(did);
       if (mColumnCount <= 1) {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
       } else {

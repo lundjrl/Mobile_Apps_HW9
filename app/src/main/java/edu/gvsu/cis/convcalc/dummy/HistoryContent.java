@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 
 /**
  * Helper class for providing sample content for user interfaces created by Android template
@@ -12,62 +13,37 @@ import java.util.Map;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class HistoryContent {
-
-  /**
-   * An array of sample (dummy) items.
-   */
   public static final List<HistoryItem> ITEMS = new ArrayList<HistoryItem>();
 
-  /**
-   * A map of sample (dummy) items, by ID.
-   */
-  public static final Map<String, HistoryItem> ITEM_MAP = new HashMap<String, HistoryItem>();
-
-  private static final int COUNT = 25;
-
-  static {
-    // Add some sample items.
-    for (int i = 1; i <= COUNT; i++) {
-      addItem(createDummyItem(i));
-    }
-  }
-
-  private static void addItem(HistoryItem item) {
+  public static void addItem(HistoryItem item) {
     ITEMS.add(item);
-    ITEM_MAP.put(item.id, item);
   }
 
-  private static HistoryItem createDummyItem(int position) {
-    return new HistoryItem(String.valueOf(position), "Item " + position, makeDetails(position));
-  }
-
-  private static String makeDetails(int position) {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Details about Item: ").append(position);
-    for (int i = 0; i < position; i++) {
-      builder.append("\nMore details information here.");
-    }
-    return builder.toString();
-  }
-
-  /**
-   * A dummy item representing a piece of content.
-   */
   public static class HistoryItem {
+    public final Double fromVal;
+    public final Double toVal;
+    public final String mode;
+    public final String fromUnits;
+    public final String toUnits;
 
-    public final String id;
-    public final String content;
-    public final String details;
+    public final DateTime timestamp;
 
-    public HistoryItem(String id, String content, String details) {
-      this.id = id;
-      this.content = content;
-      this.details = details;
+    public HistoryItem(Double fromVal, Double toVal, String mode,
+        String fromUnits, String toUnits, DateTime timestamp) {
+      this.fromVal = fromVal;
+      this.toVal = toVal;
+      this.mode = mode;
+      this.fromUnits = fromUnits;
+      this.toUnits = toUnits;
+      this.timestamp = timestamp;
     }
 
     @Override
     public String toString() {
-      return content;
+      return this.fromVal + " " + this.fromUnits + " = " + this.toVal + " " + this.toUnits;
     }
   }
 }
+
+
+

@@ -38,8 +38,8 @@ public class HistoryAdapter extends
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
     holder.mItem = mValues.get(position);
-    holder.mIdView.setText(mValues.get(position).id);
-    holder.mContentView.setText(mValues.get(position).content);
+    holder.mP1.setText(holder.mItem.toString());
+    holder.mDateTime.setText(holder.mItem.timestamp.toString());
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -59,22 +59,21 @@ public class HistoryAdapter extends
   }
 
   public class ViewHolder extends RecyclerView.ViewHolder {
-
     public final View mView;
-    public final TextView mIdView;
-    public final TextView mContentView;
+    public final TextView mP1;
+    public final TextView mDateTime;
     public HistoryItem mItem;
 
     public ViewHolder(View view) {
       super(view);
       mView = view;
-      mIdView = (TextView) view.findViewById(R.id.item_number);
-      mContentView = (TextView) view.findViewById(R.id.content);
+      mP1 = (TextView) view.findViewById(R.id.p1);
+      mDateTime = (TextView) view.findViewById(R.id.timestamp);
     }
 
     @Override
     public String toString() {
-      return super.toString() + " '" + mContentView.getText() + "'";
+      return super.toString() + " '" + mDateTime.getText() + "'";
     }
   }
 }
