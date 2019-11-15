@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import edu.gvsu.cis.convcalc.dummy.HistoryContent;
 import edu.gvsu.cis.convcalc.dummy.HistoryContent.HistoryItem;
+import java.util.List;
 
 /**
  * A fragment representing a list of Items. <p /> Activities containing this fragment MUST implement
@@ -25,11 +26,14 @@ public class HistoryFragment extends Fragment {
   private int mColumnCount = 1;
   private OnListFragmentInteractionListener mListener;
 
+  List<HistoryItem> allHistory;
+
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
    * screen orientation changes).
    */
   public HistoryFragment() {
+    this.allHistory = MainActivity.allHistory;
   }
 
   // TODO: Customize parameter initialization
@@ -68,7 +72,7 @@ public class HistoryFragment extends Fragment {
       } else {
         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
       }
-      recyclerView.setAdapter(new HistoryAdapter(HistoryContent.ITEMS, mListener));
+      recyclerView.setAdapter(new HistoryAdapter(allHistory, mListener));
     }
     return view;
   }

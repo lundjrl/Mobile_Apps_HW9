@@ -11,11 +11,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import edu.gvsu.cis.convcalc.UnitsConverter.LengthUnits;
 import edu.gvsu.cis.convcalc.UnitsConverter.VolumeUnits;
 import edu.gvsu.cis.convcalc.dummy.HistoryContent;
 import edu.gvsu.cis.convcalc.dummy.HistoryContent.HistoryItem;
+import java.util.ArrayList;
+import java.util.List;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private HistoryItem item;
 
     private enum Mode {Length, Volume};
+
+    public DatabaseReference topRef;
+
+    public static List<HistoryContent.HistoryItem> allHistory;
 
     private Mode mode = Mode.Length;
     private Button calcButton;
@@ -42,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        allHistory = new ArrayList<HistoryContent.HistoryItem>();
 
         calcButton = findViewById(R.id.calcButton);
         clearButton = findViewById(R.id.clearButton);
@@ -105,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         EditText dest = null;
         String val = "";
         String fromVal = fromField.getText().toString();
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         if (fromVal.intern() != "" ) {
             val = fromVal;
             dest = toField;
@@ -131,9 +147,10 @@ public class MainActivity extends AppCompatActivity {
                     dest.setText(Double.toString(cVal));
 
                     // remember the calculation.
-                    item = new HistoryContent.HistoryItem(dVal, cVal, mode.toString(),
-                        toUnits.getText().toString(), fromUnits.getText().toString(), DateTime.now());
+                    HistoryContent.HistoryItem item = new HistoryContent.HistoryItem(dVal, cVal, mode.toString(),
+                        fUnits.toString(), tUnits.toString(), fmt.print(DateTime.now()));
                     HistoryContent.addItem(item);
+                    topRef.push().setValue(item);
                     break;
                 case Volume:
                     VolumeUnits vtUnits, vfUnits;
@@ -149,9 +166,11 @@ public class MainActivity extends AppCompatActivity {
                     dest.setText(Double.toString(vcVal));
 
                     // remember the calculation.
-                    item = new HistoryContent.HistoryItem(vdVal, vcVal, mode.toString(),
-                        toUnits.getText().toString(), fromUnits.getText().toString(), DateTime.now());
-                    HistoryContent.addItem(item);
+
+                    HistoryContent.HistoryItem item2 = new HistoryContent.HistoryItem(vdVal, vcVal, mode.toString(),
+                        vfUnits.toString(), vtUnits.toString(), fmt.print(DateTime.now()));
+                    HistoryContent.addItem(item2);
+                    topRef.push().setValue(item2);
                     break;
             }
         }
@@ -211,5 +230,56 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        topRef = FirebaseDatabase.getInstance().getReference("history");
+        topRef.addChildEventListener (chEvListener);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        topRef.removeEventListener(chEvListener);
+    }
+
+    private ChildEventListener chEvListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            HistoryContent.HistoryItem entry =
+                (HistoryContent.HistoryItem) dataSnapshot.getValue(HistoryContent.HistoryItem.class);
+            entry._key = dataSnapshot.getKey();
+            allHistory.add(entry);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            HistoryContent.HistoryItem entry =
+                (HistoryContent.HistoryItem) dataSnapshot.getValue(HistoryContent.HistoryItem.class);
+            List<HistoryContent.HistoryItem> newHistory = new ArrayList<HistoryContent.HistoryItem>();
+            for (HistoryContent.HistoryItem t : allHistory) {
+                if (!t._key.equals(dataSnapshot.getKey())) {
+                    newHistory.add(t);
+                }
+            }
+            allHistory = newHistory;
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
 
 }
